@@ -1,0 +1,979 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<title>Storyline Studios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<script>document.documentElement.className = 'js';</script>
+<style>
+:root {
+  --bg: #F3F3F1;
+  --ink: #111111;
+  --ink2: #3A3A3A;
+  --grey: #5F5F5F;
+  --line: #D9D9D6;
+  --accent: #A9490F;
+  --panel: rgba(243, 243, 241, 0.93);
+  --radius: 4px;
+  --ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --nav: 72px;
+  --gutter: clamp(20px, 4.5vw, 64px);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Schibsted Grotesk', system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+h1, h2, h3, p { margin: 0; }
+.skip {
+  position: absolute; left: 12px; top: -60px; z-index: 50;
+  background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: var(--radius);
+}
+.skip:focus { top: 12px; }
+
+/* Navigation */
+.nav {
+  position: fixed; left: 0; right: 0; top: 0; z-index: 20;
+  height: var(--nav);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--gutter);
+  background: rgba(243, 243, 241, 0.96);
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 20px; letter-spacing: -0.01em; }
+.nav-links { display: flex; align-items: center; gap: 32px; font-size: 15px; }
+.nav-links a.link { color: var(--grey); transition: color 160ms ease; }
+.btn-line {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 20px;
+  border: 1px solid var(--grey); border-radius: var(--radius);
+  font-size: 15px; font-weight: 500; white-space: nowrap;
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms var(--ease);
+}
+.btn-line:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) {
+  .nav-links a.link:hover { color: var(--ink); }
+  .btn-line:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+}
+@media (max-width: 640px) { .nav-links a.link { display: none; } }
+
+/* Scroll story */
+.story { position: relative; height: 600dvh; }
+html:not(.js) .story { height: 100dvh; }
+.stage {
+  position: sticky; top: 0; height: 100dvh; overflow: hidden;
+  background: #C9C6BF;
+  contain: layout paint;
+}
+.stage .poster, .stage canvas {
+  position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+}
+.stage .poster { object-fit: cover; object-position: 50% 50%; }
+.js .stage canvas { opacity: 0; }
+.js .stage canvas.ready { opacity: 1; }
+
+.hero-copy {
+  position: absolute; z-index: 5;
+  right: calc(var(--gutter) + 64px); bottom: clamp(24px, 7vh, 72px);
+  width: min(640px, calc(100% - var(--gutter) * 2 - 64px));
+  background: var(--panel); border-radius: var(--radius); padding: 32px;
+  will-change: transform, opacity;
+}
+.hero-copy h1 {
+  font-size: clamp(30px, 3.2vw, 46px); line-height: 1.08; letter-spacing: -0.025em; font-weight: 700;
+}
+.hero-copy p {
+  margin-top: 16px; max-width: 470px; font-size: 17px; line-height: 1.5; color: var(--ink2);
+}
+.cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; margin-top: 28px; }
+.cta-2 { display: inline-flex; align-items: center; min-height: 48px; font-weight: 500; font-size: 16px; text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px; }
+@media (hover: hover) and (pointer: fine) { .cta-2:hover { text-decoration-thickness: 2px; color: var(--accent); } }
+.cta {
+  display: inline-flex; align-items: center; min-height: 48px; padding: 0 28px;
+  background: var(--ink); color: var(--bg); border-radius: var(--radius);
+  font-weight: 500; font-size: 16px; white-space: nowrap;
+  transition: transform 160ms var(--ease), background-color 160ms ease;
+}
+.cta:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .cta:hover { background: #2A2A2C; } }
+
+.caps {
+  position: absolute; z-index: 5; left: var(--gutter); bottom: clamp(24px, 7vh, 72px);
+  width: min(420px, calc(100% - var(--gutter) - 72px));
+  background: var(--panel); border-radius: var(--radius); padding: 28px;
+  display: grid; opacity: 0; transform: translateY(12px);
+}
+.cap {
+  grid-area: 1 / 1;
+  opacity: 0; transform: translateY(8px); pointer-events: none; visibility: hidden;
+  transition: opacity 240ms var(--ease), transform 240ms var(--ease), visibility 0s linear 240ms;
+}
+.cap.on { opacity: 1; transform: none; pointer-events: auto; visibility: visible; transition-delay: 0s; }
+.cap-link {
+  display: inline-flex; align-items: center; min-height: 44px; margin-top: 8px;
+  font-size: 16px; font-weight: 500; color: var(--accent);
+  text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px;
+}
+@media (hover: hover) and (pointer: fine) { .cap-link:hover { text-decoration-thickness: 2px; } }
+
+.btn-fill {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 20px; background: var(--ink); color: var(--bg);
+  border-radius: var(--radius); font-size: 15px; font-weight: 500; white-space: nowrap;
+  transition: background-color 160ms ease, transform 160ms var(--ease);
+}
+.btn-fill:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .btn-fill:hover { background: #2A2A2C; } }
+
+.mbar {
+  display: none; position: fixed; z-index: 30; left: 0; right: 0; bottom: 0;
+  padding: 10px max(16px, env(safe-area-inset-left, 0px)) calc(10px + env(safe-area-inset-bottom, 0px));
+  background: rgba(243, 243, 241, 0.97);
+  border-top: 1px solid var(--line);
+  transform: translateY(110%); transition: transform 300ms var(--ease);
+}
+.mbar a { display: flex; align-items: center; justify-content: center; min-height: 48px; background: var(--ink); color: var(--bg); border-radius: var(--radius); font-weight: 500; font-size: 16px; }
+.mbar.show { transform: none; }
+@media (max-width: 640px) {
+  .mbar { display: block; }
+  footer { padding-bottom: calc(32px + 76px); }
+}
+.cap h2 { font-size: 40px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700; }
+.cap p { margin-top: 10px; font-size: 17px; line-height: 1.5; color: var(--ink2); }
+
+.rail {
+  position: absolute; z-index: 6; right: clamp(8px, 2vw, 28px); top: 50%;
+  transform: translateY(-50%);
+  height: 300px; width: 44px;
+}
+.rail .track { position: absolute; left: 21px; top: 22px; bottom: 22px; width: 2px; background: rgba(17, 17, 17, 0.28); }
+.rail .fill {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 2px; background: var(--accent);
+  transform-origin: top; transform: scaleY(0);
+}
+.rail ol { list-style: none; margin: 0; padding: 0; height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+.rail button {
+  position: relative; width: 44px; height: 44px; padding: 0; background: none; border: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.rail .dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--ink);
+  transition: transform 200ms var(--ease), background-color 200ms ease;
+}
+.rail button.on .dot { background: var(--accent); border-color: var(--accent); transform: scale(1.25); }
+.rail .tip {
+  position: absolute; right: 52px; top: 50%; transform: translateY(-50%) translateX(6px);
+  background: var(--panel); color: var(--ink); border-radius: var(--radius);
+  padding: 4px 10px; font-size: 14px; font-weight: 500; white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: opacity 160ms var(--ease), transform 160ms var(--ease);
+}
+.rail button.on .tip, .rail button:focus-visible .tip { opacity: 1; transform: translateY(-50%); }
+@media (hover: hover) and (pointer: fine) { .rail button:hover .tip { opacity: 1; transform: translateY(-50%); } }
+
+@media (max-width: 800px) {
+  .story { height: 480dvh; }
+  .hero-copy { left: var(--gutter); right: auto; width: calc(100% - var(--gutter) - 64px); padding: 20px; }
+  .hero-copy h1 { font-size: 28px; }
+  .hero-copy p { font-size: 15px; margin-top: 10px; }
+  .hero-copy .cta-row { margin-top: 18px; }
+  .hero-copy .cta, .hero-copy .cta-2 { min-height: 44px; }
+  .caps { width: calc(100% - var(--gutter) - 64px); padding: 20px; }
+  .cap h2 { font-size: 32px; }
+  .cap p { font-size: 16px; }
+  /* Phone: the timeline becomes a labelled strip under the nav so it never covers the picture. */
+  .rail {
+    left: var(--gutter); right: var(--gutter); top: calc(var(--nav) + 10px);
+    transform: none; width: auto; height: 48px;
+    background: var(--panel); border-radius: var(--radius); overflow: hidden;
+  }
+  .rail .track { left: 0; right: 0; top: auto; bottom: 0; width: auto; height: 3px; background: rgba(17, 17, 17, 0.14); }
+  .rail .fill { width: 100%; height: 3px; transform-origin: left; transform: scaleX(0); }
+  .rail ol { flex-direction: row; justify-content: stretch; }
+  .rail li { flex: 1; min-width: 0; }
+  .rail button { width: 100%; height: 45px; }
+  .rail .dot { display: none; }
+  .rail .tip, .rail button.on .tip, .rail button:focus-visible .tip {
+    position: static; transform: none; opacity: 1; background: none; padding: 0;
+    font-size: 12px; font-weight: 500; color: var(--grey); transition: color 160ms ease;
+  }
+  .rail button.on .tip { color: var(--ink); }
+}
+
+/* Sections */
+section.block { padding: clamp(80px, 12vw, 160px) var(--gutter); }
+.wrap { max-width: 1280px; margin: 0 auto; }
+h2.big { font-size: clamp(32px, 4.2vw, 58px); line-height: 1.06; letter-spacing: -0.025em; font-weight: 700; }
+.lede { margin-top: 24px; max-width: 62ch; color: var(--grey); }
+
+.studio-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 32px; align-items: start; }
+.studio-text { grid-column: 1 / 8; }
+.studio-text p + p { margin-top: 16px; }
+.studio-img { grid-column: 9 / 13; margin-top: 32px; aspect-ratio: 4 / 5; overflow: hidden; border-radius: var(--radius); background: var(--line); }
+.studio-img img { width: 100%; height: 100%; object-fit: cover; object-position: 72% 50%; display: block; }
+@media (max-width: 800px) {
+  .studio-grid { grid-template-columns: minmax(0, 1fr); }
+  .studio-text, .studio-img { grid-column: 1 / -1; }
+  .studio-img { margin-top: 8px; aspect-ratio: 4 / 3; }
+}
+
+.work { border-top: 1px solid var(--line); }
+.work-grid { margin-top: 64px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 64px 32px; }
+.proj { display: block; }
+.proj .img { overflow: hidden; border-radius: var(--radius); background: var(--line); }
+.proj img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 500ms var(--ease); }
+.proj .meta { margin-top: 16px; }
+.proj .fmt { font-size: 14px; font-weight: 500; color: var(--grey); }
+.proj h3 { font-size: 26px; line-height: 1.2; letter-spacing: -0.015em; font-weight: 700; margin-top: 2px; }
+.proj .log { margin-top: 6px; font-size: 16px; line-height: 1.5; color: var(--ink2); max-width: 46ch; }
+.p1 { grid-column: 1 / 7; }
+.p1 .img { aspect-ratio: 4 / 5; }
+.p2 { grid-column: 8 / 13; margin-top: 140px; }
+.p2 .img { aspect-ratio: 4 / 5; }
+.p3 { grid-column: 2 / 7; }
+.p3 .img { aspect-ratio: 4 / 5; }
+.p4 { grid-column: 7 / 13; margin-top: 120px; }
+.p4 .img { aspect-ratio: 4 / 3; }
+.p5 { grid-column: 1 / 13; }
+.p5 .img { aspect-ratio: 16 / 9; }
+.p1 img { object-position: 40% 55%; }
+.p2 img { object-position: 50% 40%; }
+.p3 img { object-position: 50% 60%; }
+.p4 img { object-position: 40% 50%; }
+.p5 img { object-position: 50% 60%; }
+@media (hover: hover) and (pointer: fine) { .proj:hover img { transform: scale(1.03); } }
+@media (max-width: 800px) {
+  .work-grid { grid-template-columns: minmax(0, 1fr); gap: 48px; }
+  .p1, .p2, .p3, .p4, .p5 { grid-column: 1 / -1; margin-top: 0; }
+}
+.js .reveal .img { clip-path: inset(0 0 100% 0); transition: clip-path 800ms var(--ease); }
+.js .reveal.in .img { clip-path: inset(0 0 0 0); }
+
+/* Text reveal */
+.js .rise { opacity: 0; transform: translateY(14px); transition: opacity 600ms var(--ease), transform 600ms var(--ease); transition-delay: var(--d, 0ms); }
+.js .rise.in { opacity: 1; transform: none; }
+
+/* Studio extras */
+.sub { margin-top: clamp(64px, 8vw, 112px); display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 24px 32px; }
+.sub-head { grid-column: 1 / 6; }
+.sub-head h3 { font-size: clamp(26px, 2.8vw, 38px); line-height: 1.1; letter-spacing: -0.02em; font-weight: 700; }
+.sub-head p { margin-top: 14px; color: var(--grey); font-size: 17px; max-width: 44ch; }
+.rules { grid-column: 7 / 13; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--ink); }
+.rules li { padding: 20px 0; border-bottom: 1px solid var(--line); }
+.rules h4 { margin: 0; font-size: 21px; line-height: 1.25; letter-spacing: -0.01em; }
+.rules p { margin-top: 6px; color: var(--ink2); font-size: 16px; line-height: 1.55; max-width: 52ch; }
+.stats { margin-top: clamp(56px, 7vw, 96px); margin-bottom: 0; padding: 24px 0 0; border-top: 1px solid var(--ink); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
+.stat { display: flex; flex-direction: column; }
+.stat .n { font-size: clamp(44px, 5.5vw, 80px); line-height: 1; letter-spacing: -0.035em; font-weight: 700; font-variant-numeric: tabular-nums; margin: 0; }
+.stat .t { margin: 10px 0 0; color: var(--grey); font-size: 16px; line-height: 1.4; max-width: 22ch; }
+
+/* Columns (process, clients) */
+.cols { margin-top: 56px; display: grid; gap: 40px 32px; }
+.cols.c4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.cols.c3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.col { border-top: 1px solid var(--ink); padding-top: 20px; }
+.col .no { font-size: 15px; font-weight: 500; color: var(--accent); font-variant-numeric: tabular-nums; }
+.col h3 { margin-top: 6px; font-size: 26px; line-height: 1.2; letter-spacing: -0.015em; font-weight: 700; }
+.col p { margin-top: 10px; color: var(--ink2); font-size: 16px; line-height: 1.55; max-width: 40ch; }
+.col .for { margin-top: 16px; font-size: 15px; font-weight: 500; color: var(--grey); }
+
+/* Notes */
+.notes { margin-top: 48px; border-top: 1px solid var(--ink); }
+.note { display: grid; grid-template-columns: 180px minmax(0, 1fr) minmax(0, 1.4fr); gap: 8px 32px; padding: 24px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+.note .d { font-size: 15px; color: var(--grey); font-variant-numeric: tabular-nums; }
+.note h3 { font-size: 22px; line-height: 1.25; letter-spacing: -0.01em; font-weight: 700; }
+.note p { color: var(--ink2); font-size: 16px; line-height: 1.55; }
+
+/* FAQ */
+.faq { margin-top: 48px; border-top: 1px solid var(--ink); max-width: 880px; }
+.faq details { border-bottom: 1px solid var(--line); }
+.faq summary {
+  list-style: none; cursor: pointer; min-height: 64px; padding: 12px 0;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  font-size: 20px; font-weight: 500; line-height: 1.3;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: ""; flex: none; width: 9px; height: 9px; margin-right: 6px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg); transition: transform 200ms var(--ease);
+}
+.faq details[open] summary::after { transform: translateY(2px) rotate(-135deg); }
+.faq details p { padding: 0 0 24px; max-width: 62ch; color: var(--ink2); }
+@media (hover: hover) and (pointer: fine) { .faq summary:hover { color: var(--accent); } }
+
+@media (max-width: 900px) {
+  .sub { grid-template-columns: minmax(0, 1fr); }
+  .sub-head, .rules { grid-column: 1 / -1; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cols.c4, .cols.c3 { grid-template-columns: minmax(0, 1fr); }
+  .note { grid-template-columns: minmax(0, 1fr); }
+}
+
+.contact { border-top: 1px solid var(--line); }
+.contact-grid { margin-top: 56px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 48px 32px; }
+form { grid-column: 1 / 8; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field.full { grid-column: 1 / -1; }
+label { font-size: 15px; font-weight: 500; }
+input, select, textarea {
+  font: inherit; font-size: 17px; color: var(--ink);
+  background: #FFFFFF; border: 1px solid #767676; border-radius: var(--radius);
+  min-height: 48px; padding: 10px 14px; width: 100%;
+}
+textarea { min-height: 150px; resize: vertical; }
+input::placeholder, textarea::placeholder { color: #6B6B6B; }
+.help { font-size: 14px; color: var(--grey); }
+.actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+.submit {
+  min-height: 48px; padding: 0 28px; background: var(--ink); color: var(--bg); border: 0; border-radius: var(--radius);
+  font: inherit; font-weight: 500; font-size: 16px; cursor: pointer; white-space: nowrap;
+  transition: transform 160ms var(--ease), background-color 160ms ease;
+}
+.submit:active { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .submit:hover { background: #2A2A2C; } }
+.status { font-size: 16px; color: var(--ink2); min-height: 1.5em; }
+.status.err { color: #8A1C14; }
+.contact-side { grid-column: 9 / 13; }
+.contact-side h3 { font-size: 15px; font-weight: 500; color: var(--grey); }
+.contact-side p { margin-top: 4px; font-size: 20px; line-height: 1.4; }
+.contact-side p + h3 { margin-top: 28px; }
+@media (max-width: 800px) {
+  .contact-grid { grid-template-columns: minmax(0, 1fr); }
+  form, .contact-side { grid-column: 1 / -1; }
+  form { grid-template-columns: 1fr; }
+}
+
+footer {
+  border-top: 1px solid var(--line);
+  padding: 32px var(--gutter);
+  font-size: 15px; color: var(--grey);
+}
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 32px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .cap { transform: none; }
+  .js .reveal .img { clip-path: none; transition: none; }
+  .proj img { transition: none; }
+  .js .rise { opacity: 1; transform: none; transition: none; }
+  .faq summary::after { transition: none; }
+}
+</style>
+<a class="skip" href="#studio">Skip to content</a>
+
+<header class="nav">
+  <a class="brand" href="#top" aria-label="Storyline Studios, home">
+    <svg width="28" height="20" viewBox="0 0 28 20" aria-hidden="true"><path d="M0 16 C 8 16, 10 4, 24 4" fill="none" stroke="#111111" stroke-width="2"></path><circle cx="25" cy="4" r="2.5" fill="#111111"></circle></svg>
+    <span>Storyline Studios</span>
+  </a>
+  <nav class="nav-links" aria-label="Main">
+    <a class="link" href="#services">Services</a>
+    <a class="link" href="#studio">Studio</a>
+    <a class="link" href="#work">Work</a>
+    <a class="link" href="#process">Process</a>
+    <a class="btn-fill" href="#contact">Start a project</a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="story" id="services" aria-label="Services">
+    <div class="stage">
+      <img class="poster" src="f/001.webp" alt="A warm loft studio with a vintage film camera on a wooden tripod, film reels and a radio, with a television and plants beyond." fetchpriority="high">
+      <canvas aria-hidden="true"></canvas>
+
+      <div class="hero-copy">
+        <h1>Original stories from Lusaka, for everywhere.</h1>
+        <p>An independent production company making film, television, audio, digital and publishing for global audiences.</p>
+        <div class="cta-row">
+          <a class="cta" href="#contact">Send an enquiry</a>
+          <a class="cta-2" href="#work">See the work</a>
+        </div>
+      </div>
+
+      <div class="caps" aria-live="polite">
+        <article class="cap" data-i="0">
+          <h2>Film</h2>
+          <p>Feature films and documentaries, developed in Lusaka and made for festivals, cinemas and streaming.</p>
+          <a class="cap-link" href="#contact" data-type="Film">Enquire about film</a>
+        </article>
+        <article class="cap" data-i="1">
+          <h2>Television</h2>
+          <p>Series and specials written, produced and delivered to broadcasters and platforms worldwide.</p>
+          <a class="cap-link" href="#contact" data-type="Television">Enquire about television</a>
+        </article>
+        <article class="cap" data-i="2">
+          <h2>Audio</h2>
+          <p>Podcasts, radio documentaries and sound design, recorded with the care we give picture.</p>
+          <a class="cap-link" href="#contact" data-type="Audio">Enquire about audio</a>
+        </article>
+        <article class="cap" data-i="3">
+          <h2>Digital</h2>
+          <p>Short-form series and branded content built for the screens people actually watch.</p>
+          <a class="cap-link" href="#contact" data-type="Digital">Enquire about digital</a>
+        </article>
+        <article class="cap" data-i="4">
+          <h2>Publishing</h2>
+          <p>Books and anthologies that carry our stories onto the page, from first draft to print.</p>
+          <a class="cap-link" href="#contact" data-type="Publishing">Enquire about publishing</a>
+        </article>
+      </div>
+
+      <nav class="rail" aria-label="Services timeline">
+        <div class="track"><div class="fill"></div></div>
+        <ol>
+          <li><button type="button" data-i="0" aria-label="Film"><span class="dot"></span><span class="tip">Film</span></button></li>
+          <li><button type="button" data-i="1" aria-label="Television"><span class="dot"></span><span class="tip">Television</span></button></li>
+          <li><button type="button" data-i="2" aria-label="Audio"><span class="dot"></span><span class="tip">Audio</span></button></li>
+          <li><button type="button" data-i="3" aria-label="Digital"><span class="dot"></span><span class="tip">Digital</span></button></li>
+          <li><button type="button" data-i="4" aria-label="Publishing"><span class="dot"></span><span class="tip">Publishing</span></button></li>
+        </ol>
+      </nav>
+    </div>
+  </section>
+
+  <section class="block" id="studio">
+    <div class="wrap studio-grid">
+      <div class="studio-text">
+        <h2 class="big">A small studio with a long view.</h2>
+        <p class="lede">Storyline Studios is an independent production company in Lusaka, Zambia. We develop and produce original work across film, television, audio, digital media and publishing, for audiences around the world.</p>
+        <p class="lede">We keep the team small and the slate focused, so every project has a writer, a producer and a director who stay with it from first draft to release.</p>
+      </div>
+      <div class="studio-img"><img src="s/studio.webp" alt="A bench, a laptop and a shelf of books in a bright, empty studio." loading="lazy"></div>
+    </div>
+
+    <div class="wrap sub">
+      <div class="sub-head rise">
+        <h3>Old tools, new stories.</h3>
+        <p>The cameras and microphones in our films are old on purpose. We borrow the habits of the film era, and deliver to the screens of today.</p>
+      </div>
+      <ol class="rules">
+        <li class="rise">
+          <h4>Shoot it like it matters</h4>
+          <p>We rehearse, light properly and get it right on the day. Fewer takes, more care, and a set that stays calm.</p>
+        </li>
+        <li class="rise" style="--d: 80ms">
+          <h4>Finish it for now</h4>
+          <p>Everything leaves the studio to broadcaster and platform specs, with subtitles in the languages your audience speaks.</p>
+        </li>
+        <li class="rise" style="--d: 160ms">
+          <h4>Keep the story at home</h4>
+          <p>We develop and own our originals in Lusaka, and co-produce on fair terms with partners who come in early.</p>
+        </li>
+      </ol>
+    </div>
+
+    <dl class="wrap stats">
+      <div class="stat rise"><dt class="t" style="order: 2">formats under one roof</dt><dd class="n">5</dd></div>
+      <div class="stat rise" style="--d: 80ms"><dt class="t" style="order: 2">team from first draft to release</dt><dd class="n">1</dd></div>
+      <div class="stat rise" style="--d: 160ms"><dt class="t" style="order: 2">Zambian languages, plus English</dt><dd class="n">7</dd></div>
+      <div class="stat rise" style="--d: 240ms"><dt class="t" style="order: 2">working days to answer every enquiry</dt><dd class="n">3</dd></div>
+    </dl>
+  </section>
+
+  <section class="block work" id="work">
+    <div class="wrap">
+      <h2 class="big">Selected work</h2>
+      <p class="lede">One recent project from each format. Titles and descriptions are invented, and the images are AI-generated for this prototype.</p>
+      <div class="work-grid">
+        <a class="proj p1 reveal" href="#work">
+          <div class="img"><img src="s/film.webp" alt="A truck driver laughs from his cab while a woman with a basket talks to him on a red dirt road at sunset." loading="lazy"></div>
+          <div class="meta">
+            <div class="fmt">Film, feature documentary</div>
+            <h3>The Salt Road</h3>
+            <p class="log">Three truck drivers carry a year of cargo across the Great North Road, and the stories people hand them along the way.</p>
+          </div>
+        </a>
+        <a class="proj p2 reveal" href="#work">
+          <div class="img"><img src="s/television.webp" alt="A nurse in green scrubs walks down a dim hospital corridor at night." loading="lazy"></div>
+          <div class="meta">
+            <div class="fmt">Television, drama series</div>
+            <h3>Night Shift</h3>
+            <p class="log">Six episodes inside one Lusaka hospital, told between midnight and the first bus.</p>
+          </div>
+        </a>
+        <a class="proj p3 reveal" href="#work">
+          <div class="img"><img src="s/audio.webp" alt="A radio producer in headphones holds a microphone toward an elderly miner seated outside a brick house." loading="lazy"></div>
+          <div class="meta">
+            <div class="fmt">Audio, documentary podcast</div>
+            <h3>Copperbelt Radio</h3>
+            <p class="log">Ten episodes of voices from the mining towns, recorded on location and left unscripted.</p>
+          </div>
+        </a>
+        <a class="proj p4 reveal" href="#work">
+          <div class="img"><img src="s/digital.webp" alt="A young woman opens the shutters of her market stall at dawn while a phone on a tripod films her." loading="lazy"></div>
+          <div class="meta">
+            <div class="fmt">Digital, short-form series</div>
+            <h3>First Light</h3>
+            <p class="log">Sixty-second portraits of people starting their workday before sunrise, made for phones.</p>
+          </div>
+        </a>
+        <a class="proj p5 reveal" href="#work">
+          <div class="img"><img src="s/publishing.webp" alt="An illustrated book lies open on a wooden table beside a misty river at sunrise, with a handwritten letter and pen." loading="lazy"></div>
+          <div class="meta">
+            <div class="fmt">Publishing, illustrated anthology</div>
+            <h3>Letters from the Zambezi</h3>
+            <p class="log">Twelve writers, twelve illustrators and one river, collected into a single hardback.</p>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="block work" id="process">
+    <div class="wrap">
+      <h2 class="big rise">From idea to release</h2>
+      <p class="lede rise">Every project follows the same four steps, with the same small team from start to finish.</p>
+      <div class="cols c4">
+        <article class="col rise">
+          <div class="no">01</div>
+          <h3>Develop</h3>
+          <p>We shape the idea with you: treatment, script or outline, budget and a delivery plan before a camera rolls.</p>
+        </article>
+        <article class="col rise" style="--d: 80ms">
+          <div class="no">02</div>
+          <h3>Produce</h3>
+          <p>One producer leads a small crew across Zambia and the region, for shoots, recording sessions and writing rooms.</p>
+        </article>
+        <article class="col rise" style="--d: 160ms">
+          <div class="no">03</div>
+          <h3>Finish</h3>
+          <p>Edit, grade, sound mix, subtitles and quality control, delivered to broadcaster and platform specifications.</p>
+        </article>
+        <article class="col rise" style="--d: 240ms">
+          <div class="no">04</div>
+          <h3>Release</h3>
+          <p>Festival and broadcast strategy, distribution, print runs, and the trailers and artwork your launch needs.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block work" id="clients">
+    <div class="wrap">
+      <h2 class="big rise">Who we work with</h2>
+      <p class="lede rise">Most of our partners are outside Zambia. They come to us for stories they cannot get anywhere else.</p>
+      <div class="cols c3">
+        <article class="col rise">
+          <h3>Commissioners and co-producers</h3>
+          <p>Broadcasters, streamers, festivals and funds looking for original stories from southern Africa, and a producer who can deliver them.</p>
+          <p class="for">Slate, packaging, co-production</p>
+        </article>
+        <article class="col rise" style="--d: 80ms">
+          <h3>Brands and NGOs</h3>
+          <p>Campaign films, branded series, audio and print for organisations with something to say and an audience to reach.</p>
+          <p class="for">Commissioned work, campaigns</p>
+        </article>
+        <article class="col rise" style="--d: 160ms">
+          <h3>Writers, directors and artists</h3>
+          <p>We read submissions and pair new voices with producers. Send a treatment, a sample chapter or a demo reel.</p>
+          <p class="for">Submissions, development</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block work" id="notes">
+    <div class="wrap">
+      <h2 class="big rise">Studio notes</h2>
+      <p class="lede rise">Short writing from the people who make the work. Titles are invented for this prototype.</p>
+      <div class="notes">
+        <article class="note rise">
+          <div class="d">12 Oct 2026</div>
+          <h3>Recording a river</h3>
+          <p>What twelve writers and a boat taught us while making Letters from the Zambezi.</p>
+        </article>
+        <article class="note rise">
+          <div class="d">28 Sep 2026</div>
+          <h3>Subtitling without losing the joke</h3>
+          <p>How we adapt humour across seven Zambian languages and English, line by line.</p>
+        </article>
+        <article class="note rise">
+          <div class="d">03 Sep 2026</div>
+          <h3>Why we still rehearse</h3>
+          <p>On a hospital set at midnight, rehearsal is what let Night Shift finish before the first bus.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block work" id="faq">
+    <div class="wrap">
+      <h2 class="big rise">Questions we get</h2>
+      <div class="faq rise">
+        <details>
+          <summary>Do you work with clients outside Zambia?</summary>
+          <p>Yes. Most of our commissioners and co-producers are abroad. We work across time zones, deliver to international specifications and invoice in major currencies.</p>
+        </details>
+        <details>
+          <summary>How big is a typical project?</summary>
+          <p>From a sixty-second digital piece to a multi-episode series or a full-length book. After a short call we scope the work, the crew and the schedule.</p>
+        </details>
+        <details>
+          <summary>Can you come in at the development stage?</summary>
+          <p>We prefer to. Early conversations about story, budget and delivery save time later, and co-production terms are simpler when they are set at the start.</p>
+        </details>
+        <details>
+          <summary>Which languages do you work in?</summary>
+          <p>English and the seven main Zambian languages. Subtitles and translations are finished by native speakers, not by software alone.</p>
+        </details>
+        <details>
+          <summary>How do we start?</summary>
+          <p>Use the form below. A few lines about the project and where it needs to go is enough, and we reply within three working days.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="block contact" id="contact">
+    <div class="wrap">
+      <h2 class="big">What are you making?</h2>
+      <p class="lede">Tell us about the project and where it needs to go. We read every message.</p>
+      <div class="contact-grid">
+        <form id="enquiry" novalidate>
+          <div class="field">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required>
+          </div>
+          <div class="field full">
+            <label for="type">Type of project</label>
+            <select id="type" name="type" required>
+              <option value="">Choose one</option>
+              <option>Film</option>
+              <option>Television</option>
+              <option>Audio</option>
+              <option>Digital</option>
+              <option>Publishing</option>
+              <option>Something else</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="msg">Tell us about it</label>
+            <textarea id="msg" name="msg" required></textarea>
+            <span class="help">A few lines is plenty.</span>
+          </div>
+          <div class="actions">
+            <button class="submit" type="submit">Send enquiry</button>
+            <p class="status" id="status" role="status"></p>
+          </div>
+        </form>
+        <div class="contact-side">
+          <h3>Email</h3>
+          <p>hello@storylinestudios.example</p>
+          <h3>Studio</h3>
+          <p>Lusaka, Zambia</p>
+          <h3>We reply within</h3>
+          <p>Three working days</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="mbar" id="mbar" aria-hidden="true"><a href="#contact" tabindex="-1">Send an enquiry</a></div>
+
+<footer>
+  <div class="wrap">
+    <span>Storyline Studios</span>
+    <span>A fictional company, created for a design assessment. Figures, titles and dates are invented.</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var story = document.querySelector('.story');
+  var stage = story.querySelector('.stage');
+  var poster = stage.querySelector('.poster');
+  var canvas = stage.querySelector('canvas');
+  var ctx = canvas.getContext('2d');
+  var hero = stage.querySelector('.hero-copy');
+  var capsBox = stage.querySelector('.caps');
+  var caps = stage.querySelectorAll('.cap');
+  var fill = stage.querySelector('.rail .fill');
+  var dots = stage.querySelectorAll('.rail button');
+
+  var railMQ = window.matchMedia('(max-width: 800px)');
+  var N = 190;
+  var canBmp = 'createImageBitmap' in window && 'fetch' in window;
+  var blobs = { 'f/': new Array(N), 'm/': new Array(N) };   /* compressed frames, cheap to keep */
+  var state = { 'f/': new Uint8Array(N), 'm/': new Uint8Array(N) };
+  var sets = { 'f/': new Array(N), 'm/': new Array(N) };    /* fallback for browsers without ImageBitmap */
+  var bmps = new Array(N), pending = {};                     /* decoded frames: only a window near the scroll position */
+  var winLo = 0, winHi = 0, curF = 0, prevF = 0, heading = 1, drawnIdx = 0;
+  var dir = 'f/', imgs = sets[dir];
+  var w = 0, h = 0, k = 1, total = 1, storyTop = 0, ready = false;
+  var visible = true, running = false, lastT = 0, shown = false;
+  var target = 0, cur = 0, lastF = -1, lastActive = -1;
+  var lastHero = -1, lastCap = -1, lastFill = -1;
+
+  /* Where each service sits in the video, as a share of the scroll. */
+  var bounds = [0.07, 0.24, 0.42, 0.60, 0.80];
+  var centers = [0.14, 0.33, 0.50, 0.69, 0.92];
+
+  function clamp(v, a, b) { return Math.min(b, Math.max(a, v)); }
+  function pad(i) { return String(i).padStart(3, '0'); }
+  /* Wide windows use the landscape frames, tall ones the portrait crop. */
+  function pickDir() { return stage.clientWidth / stage.clientHeight < 0.85 ? 'm/' : 'f/'; }
+
+  /* Every 16th frame stays decoded as a fallback for fast flicks. */
+  function isKey(i) { return i % 16 === 0; }
+  function inWindow(i) { return isKey(i) || (i >= winLo - 4 && i <= winHi + 4); }
+
+  /* Fetch keyframes first, then whatever is closest to where the reader is. */
+  function pickNext(d) {
+    var st = state[d], i;
+    for (i = 0; i < N; i += 16) { if (!st[i]) return i; }
+    var best = -1, bd = 1e9;
+    for (var j = 0; j < N; j++) {
+      if (!st[j]) { var dd = Math.abs(j - curF) + (j < curF ? 3 : 0); if (dd < bd) { bd = dd; best = j; } }
+    }
+    return best;
+  }
+  function pump(d) {
+    var i = pickNext(d);
+    if (i < 0) return;
+    state[d][i] = 1;
+    var url = d + pad(i + 1) + '.webp';
+    function done() { state[d][i] = 2; pump(d); }
+    if (canBmp) {
+      fetch(url).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (b) {
+        blobs[d][i] = b;
+        if (d === dir && inWindow(i)) decode(i);
+        done();
+      }, done);
+    } else {
+      var im = new Image();
+      im.decoding = 'async';
+      im.onload = function () { sets[d][i] = im; if (d === dir) lastF = -1; done(); };
+      im.onerror = done;
+      im.src = url;
+    }
+  }
+  function load(d) {
+    if (state[d].started) return;
+    state[d].started = true;
+    for (var c = 0; c < 6; c++) pump(d);
+  }
+
+  /* Decode off the main thread, keep a small window of ready-to-draw bitmaps around the current frame. */
+  function decode(i) {
+    var d = dir;
+    if (bmps[i] || pending[i] || !blobs[d][i]) return;
+    pending[i] = 1;
+    createImageBitmap(blobs[d][i]).then(function (b) {
+      pending[i] = 0;
+      if (d !== dir || !inWindow(i)) { b.close(); return; }
+      bmps[i] = b;
+      if (Math.abs(i - curF) < Math.abs(drawnIdx - curF)) lastF = -1;
+    }, function () { pending[i] = 0; });
+  }
+  function keepWindow(c) {
+    if (!canBmp) return;
+    winLo = Math.max(0, c - (heading > 0 ? 6 : 16));
+    winHi = Math.min(N - 1, c + (heading > 0 ? 16 : 6));
+    for (var i = 0; i < N; i++) {
+      if (bmps[i] && !inWindow(i)) { bmps[i].close(); bmps[i] = null; }
+    }
+    var span = Math.max(winHi - c, c - winLo);
+    for (var o = 0; o <= span; o++) {
+      if (c + o <= winHi) decode(c + o);
+      if (o && c - o >= winLo) decode(c - o);
+    }
+    for (var q = 0; q < N; q += 16) decode(q);
+  }
+  function switchDir(nd) {
+    for (var i = 0; i < N; i++) { if (bmps[i]) { bmps[i].close(); bmps[i] = null; } }
+    pending = {};
+    dir = nd; imgs = sets[dir];
+    poster.src = dir + '001.webp';
+    load(dir);
+    keepWindow(curF);
+    lastF = -1;
+  }
+
+  if (railMQ.addEventListener) railMQ.addEventListener('change', function () { lastFill = -1; });
+
+  function measure() {
+    var nw = stage.clientWidth, nh = stage.clientHeight;
+    total = Math.max(1, story.offsetHeight - nh);
+    storyTop = story.getBoundingClientRect().top + window.pageYOffset;
+    /* Ignore small height changes (phone address bar) so the canvas is not rebuilt mid-scroll. */
+    if (ready && nw === w && Math.abs(nh - h) < 120) return;
+    w = nw; h = nh; ready = true;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    k = Math.min(dpr, 2000 / w);
+    canvas.width = Math.round(w * k);
+    canvas.height = Math.round(h * k);
+    var nd = pickDir();
+    if (nd !== dir) { switchDir(nd); } else { load(dir); }
+    lastF = -1;
+  }
+  if ('ResizeObserver' in window) { new ResizeObserver(measure).observe(stage); }
+  else { window.addEventListener('resize', measure); }
+  window.addEventListener('load', measure);
+  dir = pickDir(); imgs = sets[dir];
+  if (dir !== 'f/') poster.src = dir + '001.webp';
+  measure();
+
+  function frameAt(i) {
+    for (var d = 0; d < N; d++) {
+      var a = i - d, b = i + d, im;
+      if (a >= 0 && (im = bmps[a] || imgs[a])) { drawnIdx = a; return im; }
+      if (b < N && (im = bmps[b] || imgs[b])) { drawnIdx = b; return im; }
+    }
+    return null;
+  }
+  function put(im, alpha) {
+    var iw = im.naturalWidth || im.width, ih = im.naturalHeight || im.height;
+    var s = Math.max(w / iw, h / ih);
+    var dw = iw * s, dh = ih * s;
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(im, (w - dw) / 2, (h - dh) / 2, dw, dh);
+  }
+  /* Draw the nearest frame. With every frame of the clip loaded there is nothing to blend. */
+  function paint(f) {
+    var A = frameAt(Math.round(f));
+    if (!A) return;
+    ctx.setTransform(k, 0, 0, k, 0, 0);
+    put(A, 1);
+    ctx.globalAlpha = 1;
+    if (!shown) { shown = true; canvas.classList.add('ready'); }
+  }
+
+  function render(p) {
+    var f = p * (N - 1);
+    var fi = Math.round(f);
+    if (fi !== curF) {
+      heading = fi > curF ? 1 : -1;
+      curF = fi;
+      keepWindow(fi);
+    }
+    if (fi !== lastF) { paint(fi); lastF = fi; }
+
+    var hv = Math.round((1 - clamp(p / 0.07, 0, 1)) * 500) / 500;
+    if (hv !== lastHero) {
+      lastHero = hv;
+      hero.style.opacity = hv;
+      hero.style.transform = 'translateY(' + (-24 * (1 - hv)) + 'px)';
+      hero.style.pointerEvents = hv < 0.2 ? 'none' : 'auto';
+    }
+    var cv = Math.round(clamp((p - 0.07) / 0.04, 0, 1) * 500) / 500;
+    if (cv !== lastCap) {
+      lastCap = cv;
+      capsBox.style.opacity = cv;
+      capsBox.style.transform = 'translateY(' + (12 * (1 - cv)) + 'px)';
+    }
+    var fv = Math.round(p * 1000) / 1000;
+    if (fv !== lastFill) { lastFill = fv; fill.style.transform = (railMQ.matches ? 'scaleX(' : 'scaleY(') + fv + ')'; }
+
+    var active = -1;
+    if (p >= bounds[0]) {
+      active = 0;
+      for (var b = 1; b < bounds.length; b++) { if (p >= bounds[b]) active = b; }
+    }
+    if (active !== lastActive) {
+      for (var c = 0; c < caps.length; c++) {
+        var on = c === active;
+        caps[c].classList.toggle('on', on);
+        caps[c].setAttribute('aria-hidden', on ? 'false' : 'true');
+        dots[c].classList.toggle('on', on);
+      }
+      lastActive = active;
+    }
+  }
+
+  /* One loop, only while the section is on screen. Easing is time-based so it feels the same at 60 and 120 Hz. */
+  function tick(t) {
+    if (!visible) { running = false; return; }
+    var dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0.016;
+    lastT = t;
+    target = clamp((window.pageYOffset - storyTop) / total, 0, 1);
+    if (reduce) { cur = target; }
+    else {
+      cur += (target - cur) * (1 - Math.exp(-dt * 12));
+      if (Math.abs(target - cur) < 0.0002) cur = target;
+    }
+    render(cur);
+    requestAnimationFrame(tick);
+  }
+  function start() { if (!running) { running = true; lastT = 0; requestAnimationFrame(tick); } }
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) {
+      visible = es[0].isIntersecting;
+      if (visible) start();
+    }, { rootMargin: '200px 0px' }).observe(story);
+  }
+  start();
+
+  /* Timeline buttons jump to the middle of each service. */
+  dots.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var i = +btn.getAttribute('data-i');
+      window.scrollTo({ top: storyTop + centers[i] * total, behavior: reduce ? 'auto' : 'smooth' });
+    });
+  });
+
+  /* Work images reveal once as they enter the viewport. */
+  var rev = document.querySelectorAll('.reveal, .rise');
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.15 });
+    rev.forEach(function (el) { io.observe(el); });
+  } else {
+    rev.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  /* Service links pre-select the project type in the form. */
+  document.querySelectorAll('[data-type]').forEach(function (a) {
+    a.addEventListener('click', function () {
+      var sel = document.getElementById('type');
+      if (sel) sel.value = a.getAttribute('data-type');
+    });
+  });
+
+  /* Phone: a sticky enquiry bar once the story has passed, hidden at the form. */
+  var mbar = document.getElementById('mbar');
+  var inStory = true, atForm = false;
+  function syncBar() { mbar.classList.toggle('show', !inStory && !atForm); }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) { inStory = es[0].isIntersecting; syncBar(); }).observe(story);
+    new IntersectionObserver(function (es) { atForm = es[0].isIntersecting; syncBar(); }).observe(document.getElementById('contact'));
+  }
+
+  /* Contact form: prototype only, nothing is sent. */
+  var form = document.getElementById('enquiry');
+  var status = document.getElementById('status');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      status.className = 'status err';
+      status.textContent = 'Please fill in every field so we can reply.';
+      var bad = form.querySelector(':invalid');
+      if (bad) bad.focus();
+      return;
+    }
+    status.className = 'status';
+    status.textContent = 'Thank you. This is a prototype, so nothing was sent.';
+    form.reset();
+  });
+})();
+</script>
+</body></html>
